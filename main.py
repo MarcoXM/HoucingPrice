@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
     # Give result
     final_prediction = predict_all(X_test,model_list)
-    df_test['final_prediction_price'] = final_prediction
+    df_test['final_prediction_price'] = np.floor(np.ecpm1(final_prediction))
     if not os.path.exists('result/'):
         os.makedirs('result/')
     df_test.to_csv("result/result.csv", index=False)
