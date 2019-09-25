@@ -7,6 +7,7 @@ from getdata import getData
 from input_fn import HousePriceDataset,FeatureEngineer
 from sklearn.model_selection import KFold, cross_val_score
 from modeling import MyModel,predict_all,rmsle
+import os
 
 
 if __name__ == '__main__':
@@ -26,8 +27,8 @@ if __name__ == '__main__':
     # modeling
     kfolds = KFold(n_splits=10, shuffle=True, random_state=42)
     models = MyModel(cleaned,y_train,kfolds)
-    elastic, lasso,ridge, svr, gbr, sgb, lgb, stack = models.main()
-    model_list = [elastic, lasso,ridge, svr, gbr, sgb, lgb, stack]
+    elastic, lasso,ridge, svr, gbr, xgb, lgb, stack = models.main()
+    model_list = [elastic, lasso,ridge, svr, gbr, xgb, lgb, stack]
 
 
     # evaluation
@@ -38,7 +39,9 @@ if __name__ == '__main__':
     # Give result
     final_prediction = predict_all(X_test,model_list)
     df_test['final_prediction_price'] = final_prediction
-    df_test.to_csv("submission.csv", index=False)
+    if not os.path.exists('result/'):
+        os.makedirs('result/')
+    df_test.to_csv("result/result.csv", index=False)
     print('Mission Complete !!')
 
 

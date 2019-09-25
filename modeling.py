@@ -13,6 +13,7 @@ from datetime import datetime
 import numpy as np
 import pickle
 import warnings
+
 warnings.filterwarnings('ignore')
 
 
@@ -91,7 +92,7 @@ class MyModel(object):
                                             objective='reg:linear', nthread=-1,
                                             scale_pos_weight=1, seed=27,
                                             reg_alpha=0.00006)
-        xgboost.fit(self.X,self.y)
+        xgboost.fit(self.X.values,self.y.values)
         return xgboost
 
 
@@ -143,11 +144,9 @@ class MyModel(object):
 
         print(datetime.now(), 'StackingCVRegressor')
         stack = self.stack(ridge=ridge,lasso=lasso, elasticnet=elastic, gbr=gbr, xgboost=xgb, lightgbm=lgb)
-        score = cv_rmse(stack,self.X,self.y,self.kfolds)
-        print("STACKING: {:.4f} ({:.4f})\n".format(score.mean(), score.std()))
 
-        print('Our model haselasticnet, ridge, lasso, gbr, xgboost, lightgbm and Stacking')
-        return elastic, lasso,ridge, svr, gbr, xgb, lgb, stack
+        print('Our model has elasticnet, lasso, ridge, svr, gbr, xgboost, lightgbm and Stacking')
+        return elastic, lasso, ridge, svr, gbr, xgb, lgb, stack
 
 
     def save_model(self, model, path):
@@ -155,10 +154,10 @@ class MyModel(object):
 	        pickle.dump(model, clf) 
 
 def predict_all(X_test,models):
-    final = np.zeros(X_test.shape,len(models))
+    final = np.zeros((X_test.shape[0],len(models)))
     for i,v in enumerate(models):
-        final[:,i] = v.predict(X_test).reshape(-1,1)
+        final[:,i] = v.predict(X_test.values)
     
     final[:,-1] = final[:,-1] * 2
-    return np.sum(final,axis=1)
+    return np.sum(final,axis=1)/(len(models)+1)
 
